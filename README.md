@@ -1,4 +1,4 @@
-# Personal Gemini Journal — Production Foundation (Phase 1)
+# Personal Gemini Journal
 
 A security-first, private AI journal providing multi-turn conversational reflection, structured entries, user-controlled memory, and strict per-user Cloud Firestore isolation.
 
@@ -210,6 +210,6 @@ npm run test
 ## 9. Implementation Roadmap
 
 - **Phase 1 (Completed):** Secure Foundation (Express, React 19, Firebase Auth, Firestore Rules, Secret Pipeline, Docker, Health/Auth Verification).
-- **Phase 2 (Upcoming):** Multi-Turn Conversational Reflection Engine (SSE streaming, context assembly, memory injection).
-- **Phase 3 (Upcoming):** Structured Journal Synthesis & Memory Extraction Bank.
-- **Phase 4 (Upcoming):** Periodic Reflection Analytics, Emotion Trajectories & Account Purge Execution.
+- **Phase 2 (Completed):** Multi-Turn Conversational Reflection Engine (SSE streaming, context assembly, memory injection).
+- **Phase 3 (Completed):** Structured Journal Synthesis & Memory Extraction Bank.
+- **Phase 4 (Completed):** Periodic Reflection Analytics, Emotion Trajectories Execution.
