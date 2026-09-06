@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile and personal preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Authenticated user unique ID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "photoURL": { "type": "string", "description": "User avatar URL" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "createdAt", "updatedAt"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Multi-turn reflective dialogue session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "lastMessageAt": { "type": "string", "format": "date-time" },
+        "messageCount": { "type": "number" },
+        "archived": { "type": "boolean" }
+      },
+      "required": ["id", "title", "createdAt", "updatedAt", "messageCount", "archived"]
+    },
+    "ConversationMessage": {
+      "title": "ConversationMessage",
+      "description": "An individual turn within a reflection conversation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "content": { "type": "string", "maxLength": 10000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "role", "content", "createdAt"]
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "A personal reflective journal entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "mood": { "type": "string" },
+        "isFavorite": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "content", "createdAt", "updatedAt"]
+    },
+    "UserMemory": {
+      "title": "UserMemory",
+      "description": "User-controlled persistent AI factual and preference memory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "content": { "type": "string", "maxLength": 500 },
+        "category": { "type": "string", "enum": ["goal", "preference", "project", "learning", "habit", "context", "principle"] },
+        "sourceConversationId": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "disabled"] },
+        "userApproved": { "type": "boolean" },
+        "provenance": { "type": "string", "enum": ["user", "ai_suggested"] },
+        "confidence": { "type": ["number", "null"] }
+      },
+      "required": ["id", "content", "category", "createdAt", "updatedAt", "status", "userApproved", "provenance"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "Root user profile document"
+    },
+    "/users/{uid}/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "User-isolated multi-turn conversation sessions"
+    },
+    "/users/{uid}/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "ConversationMessage",
+      "description": "Ordered dialog turns for a conversation"
+    },
+    "/users/{uid}/journals/{journalId}": {
+      "schema": "JournalEntry",
+      "description": "User-isolated journal entries"
+    },
+    "/users/{uid}/memories/{memoryId}": {
+      "schema": "UserMemory",
+      "description": "User-isolated AI memory bank"
+    }
+  }
+}

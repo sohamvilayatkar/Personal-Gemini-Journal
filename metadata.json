@@ -1,0 +1,6 @@
+{
+  "name": "Personal Gemini Journal",
+  "description": "A security-first, private AI journal with conversational reflection, structured entries, user-controlled memory, personal insight engine, weekly AI reflections, and strict per-user Firestore isolation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

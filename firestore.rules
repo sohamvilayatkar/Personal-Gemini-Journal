@@ -1,0 +1,98 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUserProfile(data, uid) {
+      return data.uid == uid
+        && (data.email == null || data.email is string)
+        && (data.displayName == null || (data.displayName is string && data.displayName.size() <= 128))
+        && (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 2048));
+    }
+
+    function isValidJournal(data, uid) {
+      return (data.userId == null || data.userId == uid)
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 256
+        && (data.summary == null || (data.summary is string && data.summary.size() <= 50000))
+        && (data.content == null || (data.content is string && data.content.size() <= 50000));
+    }
+
+    function isValidConversation(data) {
+      return data.id is string
+        && data.title is string && data.title.size() <= 128;
+    }
+
+    function isValidMessage(data) {
+      return data.id is string
+        && (data.role == 'user' || data.role == 'model')
+        && data.content is string && data.content.size() <= 50000;
+    }
+
+    function isValidMemory(data) {
+      return data.id is string
+        && data.content is string && data.content.size() <= 2000;
+    }
+
+    // Explicit catch-all deny for any collection outside /users/{uid}
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User profile document and strictly isolated subcollections
+    match /users/{uid} {
+      // User profile can be read, created, or updated only by the authenticated owner.
+      // Explicitly allow read, create, update, and forbid delete.
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && isValidId(uid) && isValidUserProfile(request.resource.data, uid);
+      allow delete: if false;
+
+      // User journals subcollection
+      match /journals/{journalId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && isValidId(journalId) && isValidJournal(request.resource.data, uid);
+      }
+
+      // User conversations subcollection
+      match /conversations/{conversationId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && isValidId(conversationId) && isValidConversation(request.resource.data);
+
+        match /messages/{messageId} {
+          allow read, delete: if isOwner(uid);
+          allow create, update: if isOwner(uid) && isValidId(messageId) && isValidMessage(request.resource.data);
+        }
+      }
+
+      // User memory bank subcollection
+      match /memories/{memoryId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && isValidId(memoryId) && isValidMemory(request.resource.data);
+      }
+
+      // User periodic insights subcollection
+      match /insights/{insightId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && isValidId(insightId);
+      }
+
+      // User weekly reflections subcollection
+      match /weeklyReflections/{reflectionId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && isValidId(reflectionId);
+      }
+    }
+  }
+}
+
